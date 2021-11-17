@@ -45,6 +45,8 @@ protected:
 
     void drawPolygon(QPainter &painter, vector<vector<int>> &arr, int PColor);
 
+    void drawLines(QPainter &painter, vector<vector<int>> &arr, int PColor);
+
 private:
     int count;
     sizes size;

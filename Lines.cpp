@@ -11,7 +11,7 @@ Lines::Lines(int width, int height, int count, vector<vector<int>> &arr, vector<
              vector<vector<int>> &map)
         : size{0, 0, 0, 0, width, height, count}, points(arr), points2(arr2), map(map) {
     int arrSize = (int) points.size();
-    this->count = findMin();
+    this->count = findMax();
     map.resize(count + 1);
     for (int i = 0; i <= count; ++i) map[i].resize(count + 1);
 
@@ -39,7 +39,7 @@ void Lines::paintEvent(QPaintEvent *e) {
     QPainter painter(this);
     drawPolygon(painter, points, 1);
     drawMap(painter);
-    drawPolygon(painter, points2, 2);
+    drawLines(painter, points2, 2);
     drawGrid(painter);
     drawAxes(painter);
 }
@@ -54,28 +54,37 @@ void Lines::drawPolygon(QPainter &painter, vector<vector<int>> &arr, int PColor)
     drawCDA(arr[0][0], arr[arr.size() - 1][0], arr[0][1], arr[arr.size() - 1][1], painter, PColor);
 }
 
-void Lines::drawMap(QPainter &painter) {
+void Lines::drawLines(QPainter &painter, vector<vector<int>> &arr, int PColor) {
+    painter.setBrush(QBrush(Qt::red));
+    painter.setPen(Qt::red);
+    for (int i = 0; i < arr.size(); i += 2) {
+        drawCDA(arr[i][0], arr[i + 1][0], arr[i][1], arr[i + 1][1], painter, PColor);
+    }
+}
 
+void Lines::drawMap(QPainter &painter) {
     fill();
     for (int i = 0; i < size.count; ++i) {
         for (int j = 0; j < size.count; ++j) {
-            if (map[i][j] == 0) continue;
+            if (map[i][j] == 0 || map[i][j] == 3) continue;
             switch (map[i][j]) {
+                case 1:
+                    painter.setBrush(QBrush(Qt::black));
+                    painter.setPen(Qt::black);
+                    break;
+                case 2:
+                    painter.setBrush(QBrush(Qt::red));
+                    painter.setPen(Qt::red);
+                    break;
                 case 3:
-                    painter.setBrush(QBrush(Qt::magenta));
-                    painter.setPen(Qt::magenta);
+                    /*painter.setBrush(QBrush(Qt::white));
+                    painter.setPen(Qt::magenta);*/
                     break;
                 case 4:
                     painter.setBrush(QBrush(Qt::yellow));
                     painter.setPen(Qt::yellow);
                     break;
-                case 5:
-                    painter.setBrush(QBrush(Qt::red));
-                    painter.setPen(Qt::red);
-                    break;
                 default:
-                    painter.setBrush(QBrush(Qt::black));
-                    painter.setPen(Qt::black);
                     break;
             }
             drawMediumPixel(i, j, painter);
@@ -87,20 +96,22 @@ void Lines::drawMap(QPainter &painter) {
 
 int Lines::findMin() {
     int min = points[0][0];
-    int arrSize = (int) points.size();
-    for (int i = 0; i < arrSize; ++i) {
-        if (points[i][0] < min) min = points[i][0];
-        if (points2[i][0] < min) min = points2[i][0];
+    for (auto &point : points) {
+        if (point[0] < min) min = point[0];
+    }
+    for (auto &i : points2) {
+        if (i[0] < min) min = i[0];
     }
     return min + size.count / 2;
 }
 
 int Lines::findMax() {
     int max = points[0][0];
-    int arrSize = (int) points.size();
-    for (int i = 0; i < arrSize; ++i) {
-        if (points[i][0] > max) max = points[i][0];
-        if (points2[i][0] > max) max = points2[i][0];
+    for (auto &point : points) {
+        if (point[0] > max) max = point[0];
+    }
+    for (auto &i : points2) {
+        if (i[0] > max) max = i[0];
     }
     return max + size.count / 2;
 }
@@ -119,31 +130,7 @@ void Lines::fill() {
                         if (map[i - 1][point] != 0) {
                             for (int k = point; k < j; ++k) {
                                 if (map[i][k] == 0)map[i][k] = 3;
-                            }
-                        } else {
-                            point = j + 1;
-                        }
-                    } else {
-                        point = j + 1;
-                        flag = !flag;
-                    }
-                }
-            }
-
-        }
-    }
-    for (int i = 0; i <= count; ++i) {
-        flag = false;
-        for (int j = 0; j < size.count; ++j) {
-            if (map[i][j] == 2) {
-                if (map[i][j - 1] == 2) {
-                    point = j + 1;
-                } else {
-                    if (flag) {
-                        if (map[i - 1][point] != 0) {
-                            for (int k = point; k < j; ++k) {
-                                if (map[i][k] == 3) map[i][k] = 5;
-                                else if (map[i][k] == 0) map[i][k] = 4;
+                                if (map[i][k] == 2) map[i][k] = 4;
                             }
                         } else {
                             point = j + 1;
@@ -171,8 +158,6 @@ void Lines::mapClean() {
 void Lines::drawGrid(QPainter &painter) const {
     painter.setPen(Qt::black);
     painter.setPen(Qt::DotLine);
-
-    //int bigPixelCount = size.count / points.size();
     for (int i = 0; i < size.count; ++i) {
         painter.drawLine((int) ((float) i / (float) size.count * (float) size.width), 0,
                          (int) ((float) i / (float) size.count * (float) size.width),

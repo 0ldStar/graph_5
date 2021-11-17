@@ -11,12 +11,15 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
-    vector<vector<int>> arr{{5,  15},
-                            {5,  -15},
-                            {-20, -15},
-                            {-20, 15}};
+    vector<vector<int>> arr{{18,   -19},
+                            {5,   -10},
+                            {0,   -7},
+                            {-0, 15},
+                            {-20, 20}};
     vector<vector<int>> arr2{{10,  20},
                              {10,  -20},
+                             {-5,  10},
+                             {0,   10},
                              {-10, -20},
                              {-10, 20}};
     vector<vector<int>> map;
